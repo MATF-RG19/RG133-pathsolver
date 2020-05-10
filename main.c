@@ -34,9 +34,9 @@ float vel_incr = 0.01;
 
 //matrice za pozicije kvadrata kao i aktivnih kvadrata
 
-int kvadrati[3][3] = {{1,1,0},{1,1,1}};
+int kvadrati[2][3] = {{1,1,0},{1,1,1}};
 
-int aktivni[3][3] = {{0,0,0},{1,0,0}};
+int aktivni[2][3] = {{0,0,0},{1,0,0}};
 
 
 
@@ -108,6 +108,8 @@ int main(int argc, char **argv)
 	glClearColor(0.1,1,1,1);
 	glEnable(GL_NORMALIZE);
 	glEnable(GL_CULL_FACE);
+	//pozivamo jer obrcemo smer x ose
+	glFrontFace(GL_CW);
 	glLightModeli(GL_LIGHT_MODEL_TWO_SIDE, 1);
     glutMainLoop();
 
@@ -183,14 +185,16 @@ void on_keyboard2(int key, int x, int y){
 				positive_dir=1;
 				direction=2;
 				animation_parameter= 0;
+				glutPostRedisplay();
 			}
 
 		break;
-	case GLUT_KEY_LEFT :
+	case GLUT_KEY_RIGHT :
 			if(animation_ongoing){
 				positive_dir=1;
 				direction=0;
 				animation_parameter= 0;
+				glutPostRedisplay();
 			}
 	    break;
 	case GLUT_KEY_DOWN :
@@ -198,19 +202,21 @@ void on_keyboard2(int key, int x, int y){
 				positive_dir=0;
 				direction=2;
 				animation_parameter= 0;
+				glutPostRedisplay();
 			}
 	    break;
 
-	case GLUT_KEY_RIGHT :
+	case GLUT_KEY_LEFT :
 			if(animation_ongoing){
 				positive_dir=0;
 				direction=0;
 				animation_parameter= 0;
+				glutPostRedisplay();
 			}
+			
 	    break;	
 	
-	}
-	glutPostRedisplay();
+		}
 	}
 
 
@@ -249,10 +255,11 @@ void on_display() {
 
     glMatrixMode(GL_MODELVIEW);
     glLoadIdentity();
-
-
-    gluLookAt(6, 8, -6,
-              0, 0, 0,
+    //obrcemo x osu
+    //https://stackoverflow.com/questions/28632150/opengl-how-to-invert-x-axis
+    glScalef (-1.0, 1.0, 1.0);
+    gluLookAt(position[0], position[1]+7, position[2]-10,
+              position[0], position[1], position[2],
               0, 1, 0);
 
 	draw_grid();
@@ -308,12 +315,12 @@ void on_display() {
     if(!(kvadrati[(int)trunc(position[0])][(int)trunc(position[2])]))
 		exit(EXIT_FAILURE);    		
 		
-		
-    if(positive_dir)    
-	  position[direction] += vel_incr;
-    else
-	  position[direction] -= vel_incr;
-
+	if(animation_ongoing){	
+		if(positive_dir)    
+			position[direction] += vel_incr;
+		else
+			position[direction] -= vel_incr;
+	}
    
     glTranslatef(position[0],position[1],position[2]);		
     //lopta koja se krece po kvadratima
