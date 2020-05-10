@@ -16,12 +16,13 @@ static void draw_square(float x_coord, float z_coord);
 static void draw_square2(float x_coord, float z_coord);
 static void draw_grid();
 
+//globalne promenljive za animaciju
 float animation_parameter = 0;
 int animation_ongoing = 0;
 
 
 //pozicija igraca, inicijalno na sredini prvog kvadrata
-GLfloat position[] = {1.5,0.05,0.5};
+GLfloat position[] = {1.5,0.1,0.5};
 
 //smer kretanja igraca koji je u pocetku u smeru z ose
 int direction  = 2;
@@ -264,9 +265,6 @@ void on_display() {
 
 	draw_grid();
 
-        
-   	postavi_boje(0.9,0.3,0.3,0.9);  
-   
    	         
 	glPushMatrix();
 
@@ -310,10 +308,12 @@ void on_display() {
     
     
     //pre iscrtavanja lopte tj. igraca provera da li smo na validnom delu mreze kvadrata
-    //if(!(trunc(position[0])<2 &&(trunc(position[0])>=0)))
-		//exit(EXIT_FAILURE);
-  //  if(!(trunc(position[2])<2 &&(trunc(position[2])>=0)))
+    if(!(trunc(position[0])<2 &&(trunc(position[0])>=0)))
+		exit(EXIT_FAILURE);
+  
+    //if(!(trunc(position[2])<2 &&(trunc(position[2])>=0)))
 		//exit(EXIT_FAILURE);    
+  
     //TODO umesto prekidanja programa, napraviti animaciju propadanja lopte , pa zatvoriti program
     if(!(kvadrati[(int)trunc(position[0])][(int)trunc(position[2])]))
 		exit(EXIT_FAILURE);    		
@@ -323,7 +323,7 @@ void on_display() {
 			position[direction] += vel_incr;
 		else
 			position[direction] -= vel_incr;
-	}
+		}
    
     glTranslatef(position[0],position[1],position[2]);		
     //lopta koja se krece po kvadratima
