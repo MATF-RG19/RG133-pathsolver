@@ -54,10 +54,10 @@ int provera(float x, float z){
 
 
 //pomocna funkcija za postavljanje boja
-void postavi_boje(float red, float green, float blue){
+void postavi_boje(float red, float green, float blue, float transparency){
 
     	GLfloat ambient[] = {0.3,0.3,0.3,0};
-	    GLfloat diffuse[] = {red,green,blue,0};
+	    GLfloat diffuse[] = {red,green,blue,transparency};
     	GLfloat specular[] = {0.6,0.6,0.6,0};
     	GLfloat shininess = 80;
 
@@ -265,7 +265,7 @@ void on_display() {
 	draw_grid();
 
         
-   	postavi_boje(0.9,0.3,0.3);  
+   	postavi_boje(0.9,0.3,0.3,0.9);  
    
    	         
 	glPushMatrix();
@@ -279,14 +279,17 @@ void on_display() {
 			if(kvadrati[i][j]){
 				//provera da li je igrac i dalje na kvadratu ako nije onda ga brisemo, takodje proveravamo da li je igrac presao na neki drugi kvadrat
 				if(aktivni[i][j]){
-					if(provera(i+0.5,j+0.5))
+					if(provera(i+0.5,j+0.5)){
+						postavi_boje(1.0,0.4,0.3,0.9);  
 						draw_square2(0.5+i,0.5+j);
-					else
+					
+					} else
 						kvadrati[i][j]=0;
 
 					} else {
 						if(provera(i+0.5,j+0.5))
 							aktivni[i][j]=1;
+						postavi_boje(0.9,0.3,0.3,0.9);  
 						draw_square2(0.5+i,0.5+j);
 						}
 				}
@@ -303,7 +306,7 @@ void on_display() {
     glPushMatrix();
     glPushMatrix();
 
-    postavi_boje(0.3,0.3,0.9);
+    postavi_boje(0.3,0.3,0.9,1.0);
     
     
     //pre iscrtavanja lopte tj. igraca provera da li smo na validnom delu mreze kvadrata
