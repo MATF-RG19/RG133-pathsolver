@@ -30,16 +30,44 @@ int direction  = 2;
 int positive_dir = 1;
 
 //brzina kretanja lopte
-float vel_incr = 0.01;
+float vel_incr = 0.02;
 
 
-//matrice za pozicije kvadrata kao i aktivnih kvadrata
+int NIVO = 1;
 
-int kvadrati[2][3] = {{1,1,0},{1,1,1}};
+//matrice za pozicije kvadrata kao i aktivnih kvadrata, po nivoima
+//lvl1
+int lvl1_kvadrati[2][3] = {{1,1,0},{1,1,1}};
 
-int aktivni[2][3] = {{0,0,0},{1,0,0}};
+int lvl1_aktivni[2][3] = {{0,0,0},{1,0,0}};
+//lvl2
+int lvl2_kvadrati[3][3] = {{1,1,1},{1,1,1},{1,1,1}};
 
+int lvl2_aktivni[3][3] = {{1,0,0},{0,0,0},{0,0,0}};
+//lvl3
+int lvl3_kvadrati[2][6] = {{0,1,1,1,1,1},{1,1,1,1,1,1}};
 
+int lvl3_aktivni[2][6] = {{0,0,0,0,0,0},{1,0,0,0,0,0}};
+//lvl 4
+int lvl4_kvadrati[3][5] = {{1,1,1,1,1},{0,1,1,1,0},{0,1,1,1,0}};
+
+int lvl4_aktivni[3][5] = {{1,0,0,0,0},{0,0,0,0,0},{0,0,0,0,0}};
+
+//lvl 5
+int lvl5_kvadrati[5][5] = {{1,1,1,0,0},{1,0,1,0,0},{1,1,1,1,1},{0,0,1,0,1},{0,0,1,1,1}};
+
+int lvl5_aktivni[5][5] = {{0,0,0,0,0},{0,0,0,0,0},{0,1,0,0,0},{0,0,0,0,0},{0,0,0,0,0}};
+
+// lvl 6
+int lvl6_kvadrati[5][5] = {{1,1,0,1,1},{1,1,1,1,1},{0,0,0,1,1},{0,0,0,1,0},{0,0,0,1,0}};
+
+int lvl6_aktivni[5][5] = {{0,0,0,0,0},{1,0,0,0,0},{0,0,0,0,0},{0,0,0,0,0},{0,0,0,0,0}};
+
+// lvl 7
+
+int lvl7_kvadrati[6][6] = {{0,0,1,1,0,0},{0,0,1,1,0,0},{1,1,1,1,1,1},{1,1,1,1,1,1},{0,0,1,1,0,0},{0,0,1,1,0,0}};
+
+int lvl7_aktivni[6][6] = {{0,0,0,0,0,0},{0,0,0,0,0,0},{1,0,0,0,0,0},{0,0,0,0,0,0},{0,0,0,0,0,0},{0,0,0,0,0,0}};
 
 //provera da li je se kvadrat iscrtava
 int provera(float x, float z){
@@ -159,6 +187,7 @@ void draw_square2(float x_coord, float z_coord){
 	}
 
 
+
 //funkcije za kontrolu kretanja i pokretanje igrice
 
 void on_keyboard(unsigned char key, int x, int y) {
@@ -222,8 +251,6 @@ void on_keyboard2(int key, int x, int y){
 
 
 
-
-
 void on_timer(int id) {
     if (id == TIMER_ID) {
 
@@ -259,6 +286,9 @@ void on_display() {
     //obrcemo x osu
     //https://stackoverflow.com/questions/28632150/opengl-how-to-invert-x-axis
     glScalef (-1.0, 1.0, 1.0);
+    
+    
+    //kamera se pomera sa igracem
     gluLookAt(position[0], position[1]+7, position[2]-10,
               position[0], position[1], position[2],
               0, 1, 0);
@@ -270,32 +300,211 @@ void on_display() {
 
 	int i=0,j=0;
 	
-	while(i<2){
-		j=0;
-		while(j<3){
+	//iscrtavanje kvadrata po nivoima
+	switch(NIVO) {
+		case 1 :
+		while(i<2){
+			j=0;
+			while(j<3){
 			//ako nije obrisan, iscrtavamo kvadrat
-			if(kvadrati[i][j]){
+				if(lvl1_kvadrati[i][j]){
 				//provera da li je igrac i dalje na kvadratu ako nije onda ga brisemo, takodje proveravamo da li je igrac presao na neki drugi kvadrat
-				if(aktivni[i][j]){
-					if(provera(i+0.5,j+0.5)){
-						postavi_boje(1.0,0.4,0.3,0.9);  
-						draw_square2(0.5+i,0.5+j);
-					
-					} else
-						kvadrati[i][j]=0;
-
-					} else {
-						if(provera(i+0.5,j+0.5))
-							aktivni[i][j]=1;
-						postavi_boje(0.9,0.3,0.3,0.9);  
-						draw_square2(0.5+i,0.5+j);
-						}
+					if(lvl1_aktivni[i][j]){
+						if(provera(i+0.5,j+0.5)){
+							postavi_boje(1.0,0.4,0.3,0.9);  
+							draw_square2(0.5+i,0.5+j);
+						} else {
+							//num_of_squares -= 1;
+							lvl1_kvadrati[i][j]=0;
+							lvl1_aktivni[i][j]=0;
+							}
+						} else {
+							if(provera(i+0.5,j+0.5))
+								lvl1_aktivni[i][j]=1;
+							postavi_boje(0.9,0.3,0.3,0.9);  
+							draw_square2(0.5+i,0.5+j);
+							}
+					}
+				j+=1;
 				}
-			j+=1;
-			}
-		i+=1;
+			i+=1;
+		}
+		break;
+		case 2 :
+		i=0,j=0;
+		while(i<3) {
+			j=0;
+			while(j<3){
+			//ako nije obrisan, iscrtavamo kvadrat
+				if(lvl2_kvadrati[i][j]){
+				//provera da li je igrac i dalje na kvadratu ako nije onda ga brisemo, takodje proveravamo da li je igrac presao na neki drugi kvadrat
+					if(lvl2_aktivni[i][j]){
+						if(provera(i+0.5,j+0.5)){
+							postavi_boje(1.0,0.4,0.3,0.9);  
+							draw_square2(0.5+i,0.5+j);
+						} else {
+							//num_of_squares -= 1;
+							lvl2_kvadrati[i][j]=0;
+							lvl2_aktivni[i][j]=0;
+							}
+						} else {
+							if(provera(i+0.5,j+0.5))
+								lvl2_aktivni[i][j]=1;
+							postavi_boje(0.9,0.3,0.3,0.9);  
+							draw_square2(0.5+i,0.5+j);
+							}
+					}
+				j+=1;
+				}
+			i+=1;
+		}
+		break;
+		case 3:
+		i=0;j=0;
+		while(i<2) {
+			j=0;
+			while(j<6){
+			//ako nije obrisan, iscrtavamo kvadrat
+				if(lvl3_kvadrati[i][j]){
+				//provera da li je igrac i dalje na kvadratu ako nije onda ga brisemo, takodje proveravamo da li je igrac presao na neki drugi kvadrat
+					if(lvl3_aktivni[i][j]){
+						if(provera(i+0.5,j+0.5)){
+							postavi_boje(1.0,0.4,0.3,0.9);  
+							draw_square2(0.5+i,0.5+j);
+						} else {
+							//num_of_squares -= 1;
+							lvl3_kvadrati[i][j]=0;
+							lvl3_aktivni[i][j]=0;
+							}
+						} else {
+							if(provera(i+0.5,j+0.5))
+								lvl3_aktivni[i][j]=1;
+							postavi_boje(0.9,0.3,0.3,0.9);  
+							draw_square2(0.5+i,0.5+j);
+							}
+					}
+				j+=1;
+				}
+			i+=1;
+		}
+		break;
+		case 4:
+		i=0;j=0;
+		while(i<3) {
+			j=0;
+			while(j<5){
+			//ako nije obrisan, iscrtavamo kvadrat
+				if(lvl4_kvadrati[i][j]){
+				//provera da li je igrac i dalje na kvadratu ako nije onda ga brisemo, takodje proveravamo da li je igrac presao na neki drugi kvadrat
+					if(lvl4_aktivni[i][j]){
+						if(provera(i+0.5,j+0.5)){
+							postavi_boje(1.0,0.4,0.3,0.9);  
+							draw_square2(0.5+i,0.5+j);
+						} else {
+							//num_of_squares -= 1;
+							lvl4_kvadrati[i][j]=0;
+							lvl4_aktivni[i][j]=0;
+							}
+						} else {
+							if(provera(i+0.5,j+0.5))
+								lvl4_aktivni[i][j]=1;
+							postavi_boje(0.9,0.3,0.3,0.9);  
+							draw_square2(0.5+i,0.5+j);
+							}
+					}
+				j+=1;
+				}
+			i+=1;
+		}
+		break;	
+		case 5:
+		i=0;j=0;
+		while(i<5) {
+			j=0;
+			while(j<5){
+			//ako nije obrisan, iscrtavamo kvadrat
+				if(lvl5_kvadrati[i][j]){
+				//provera da li je igrac i dalje na kvadratu ako nije onda ga brisemo, takodje proveravamo da li je igrac presao na neki drugi kvadrat
+					if(lvl5_aktivni[i][j]){
+						if(provera(i+0.5,j+0.5)){
+							postavi_boje(1.0,0.4,0.3,0.9);  
+							draw_square2(0.5+i,0.5+j);
+						} else {
+							//num_of_squares -= 1;
+							lvl5_kvadrati[i][j]=0;
+							lvl5_aktivni[i][j]=0;
+							}
+						} else {
+							if(provera(i+0.5,j+0.5))
+								lvl5_aktivni[i][j]=1;
+							postavi_boje(0.9,0.3,0.3,0.9);  
+							draw_square2(0.5+i,0.5+j);
+							}
+					}
+				j+=1;
+				}
+			i+=1;
+		}
+		break;	
+		case 6:
+		i=0;j=0;
+		while(i<5) {
+			j=0;
+			while(j<5){
+			//ako nije obrisan, iscrtavamo kvadrat
+				if(lvl6_kvadrati[i][j]){
+				//provera da li je igrac i dalje na kvadratu ako nije onda ga brisemo, takodje proveravamo da li je igrac presao na neki drugi kvadrat
+					if(lvl6_aktivni[i][j]){
+						if(provera(i+0.5,j+0.5)){
+							postavi_boje(1.0,0.4,0.3,0.9);  
+							draw_square2(0.5+i,0.5+j);
+						} else {
+							//num_of_squares -= 1;
+							lvl6_kvadrati[i][j]=0;
+							lvl6_aktivni[i][j]=0;
+							}
+						} else {
+							if(provera(i+0.5,j+0.5))
+								lvl6_aktivni[i][j]=1;
+							postavi_boje(0.9,0.3,0.3,0.9);  
+							draw_square2(0.5+i,0.5+j);
+							}
+					}
+				j+=1;
+				}
+			i+=1;
+		}
+		break;
+		case 7:
+		i=0;j=0;
+		while(i<6) {
+			j=0;
+			while(j<6){
+			//ako nije obrisan, iscrtavamo kvadrat
+				if(lvl7_kvadrati[i][j]){
+				//provera da li je igrac i dalje na kvadratu ako nije onda ga brisemo, takodje proveravamo da li je igrac presao na neki drugi kvadrat
+					if(lvl7_aktivni[i][j]){
+						if(provera(i+0.5,j+0.5)){
+							postavi_boje(1.0,0.4,0.3,0.9);  
+							draw_square2(0.5+i,0.5+j);
+						} else {
+							//num_of_squares -= 1;
+							lvl7_kvadrati[i][j]=0;
+							lvl7_aktivni[i][j]=0;
+							}
+						} else {
+							if(provera(i+0.5,j+0.5))
+								lvl7_aktivni[i][j]=1;
+							postavi_boje(0.9,0.3,0.3,0.9);  
+							draw_square2(0.5+i,0.5+j);
+							}
+					}
+				j+=1;
+				}
+			i+=1;
+		}
+		break;		
 	}
-	
 	
 	
     glPopMatrix(); 
@@ -306,18 +515,55 @@ void on_display() {
 
     postavi_boje(0.3,0.3,0.9,1.0);
     
-    
+    switch(NIVO) {
     //pre iscrtavanja lopte tj. igraca provera da li smo na validnom delu mreze kvadrata
-    if(!(trunc(position[0])<2 &&(trunc(position[0])>=0)))
-		exit(EXIT_FAILURE);
-  
-    //if(!(trunc(position[2])<2 &&(trunc(position[2])>=0)))
-		//exit(EXIT_FAILURE);    
+    case 1:
+		if(!(trunc(position[0])<2 &&(trunc(position[0])>=0)))
+			exit(EXIT_FAILURE);  
   
     //TODO umesto prekidanja programa, napraviti animaciju propadanja lopte , pa zatvoriti program
-    if(!(kvadrati[(int)trunc(position[0])][(int)trunc(position[2])]))
-		exit(EXIT_FAILURE);    		
-		
+		if(!(lvl1_kvadrati[(int)trunc(position[0])][(int)trunc(position[2])]))
+			exit(EXIT_FAILURE); 
+		break;
+	case 2:
+		if(!(trunc(position[0])<3 &&(trunc(position[0])>=0))) 
+			exit(EXIT_FAILURE);
+		if(!(lvl2_kvadrati[(int)trunc(position[0])][(int)trunc(position[2])]))
+			exit(EXIT_FAILURE); 
+		break;	
+	case 3:
+		if(!(trunc(position[2])<6 && (trunc(position[0])>=0)))
+			exit(EXIT_FAILURE);
+		if(!(lvl3_kvadrati[(int)trunc(position[0])][(int)trunc(position[2])]))
+			exit(EXIT_FAILURE); 
+		break;
+	case 4:
+		if(!(trunc(position[2])<5 && (trunc(position[0])>=0)))
+			exit(EXIT_FAILURE);
+		if(!(lvl4_kvadrati[(int)trunc(position[0])][(int)trunc(position[2])]))
+			exit(EXIT_FAILURE); 
+		break;	
+	case 5:
+		if(!(trunc(position[2])<5 && (trunc(position[0])>=0)))
+			exit(EXIT_FAILURE);
+		if(!(lvl5_kvadrati[(int)trunc(position[0])][(int)trunc(position[2])]))
+			exit(EXIT_FAILURE); 
+		break;			
+	case 6:
+		if(!(trunc(position[2])<5 && (trunc(position[0])>=0)))
+			exit(EXIT_FAILURE);
+		if(!(lvl6_kvadrati[(int)trunc(position[0])][(int)trunc(position[2])]))
+			exit(EXIT_FAILURE); 
+		break;
+	case 7:
+		if(!(trunc(position[2])<6 && (trunc(position[0])>=0)))
+			exit(EXIT_FAILURE);
+		if(!(lvl7_kvadrati[(int)trunc(position[0])][(int)trunc(position[2])]))
+			exit(EXIT_FAILURE); 
+		break;
+	}	
+	
+	//ako animacija traje pomeramo igraca
 	if(animation_ongoing){	
 		if(positive_dir)    
 			position[direction] += vel_incr;
@@ -325,13 +571,89 @@ void on_display() {
 			position[direction] -= vel_incr;
 		}
    
+	//pomeramo igraca
     glTranslatef(position[0],position[1],position[2]);		
     //lopta koja se krece po kvadratima
    
     glutSolidSphere(0.1,64,64);
-
-
-
+	//proveravamo koliko nam je ostalo kvadrata na nivou
+	int num_of_sq = 0;
+	switch(NIVO){
+		case 1:
+			for(i=0;i<2;i++)
+				for(j=0;j<3;j++)
+					num_of_sq += lvl1_kvadrati[i][j]? 1: 0;
+			break;
+		case 2:
+			for(i=0;i<3;i++)
+				for(j=0;j<3;j++)
+					num_of_sq += lvl2_kvadrati[i][j]? 1: 0;
+			break;
+		case 3:
+			for(i=0;i<2;i++)
+				for(j=0;j<6;j++)
+					num_of_sq += lvl3_kvadrati[i][j]? 1: 0;
+			break;
+		case 4:
+			for(i=0;i<3;i++)
+				for(j=0;j<5;j++)
+					num_of_sq += lvl4_kvadrati[i][j]? 1: 0;
+			break;
+		case 5:
+			for(i=0;i<5;i++)
+				for(j=0;j<5;j++)
+					num_of_sq += lvl5_kvadrati[i][j]? 1: 0;
+			break;
+		case 6:
+			for(i=0;i<5;i++)
+				for(j=0;j<5;j++)
+					num_of_sq += lvl6_kvadrati[i][j]? 1: 0;
+			break;
+		case 7:
+			for(i=0;i<6;i++)
+				for(j=0;j<6;j++)
+					num_of_sq += lvl7_kvadrati[i][j]? 1: 0;
+			break;	
+		}
+    //TODO dodati animaciju slavalja pri prelasku sa nivoa na nivo
+    //ako smo ostali sa samo jednim kvadratom onda prelazimo na sledeci nivo
+	if(num_of_sq==1){
+		if(NIVO==7)
+			exit(EXIT_SUCCESS);
+		NIVO+=1;
+		switch (NIVO){
+			case 2:
+				position[0] = 0.5;
+				position[1] = 0.1;
+				position[2] = 0.5;
+			break;
+			case 3:
+				position[0] = 1.5;
+				position[1] = 0.1;
+				position[2] = 0.5;
+			break;
+			case 4:
+				position[0] = 0.5;
+				position[1] = 0.1;
+				position[2] = 0.5;
+			break;
+			case 5:
+				position[0] = 2.5;
+				position[1] = 0.1;
+				position[2] = 1.5;
+			break;
+			case 6:
+				position[0] = 1.5;
+				position[1] = 0.1;
+				position[2] = 0.5;
+			break;
+			case 7:
+				position[0] = 2.5;
+				position[1] = 0.1;
+				position[2] = 0.5;
+			break;							
+		}
+	}
 
     glPopMatrix();
 	glPopMatrix();
