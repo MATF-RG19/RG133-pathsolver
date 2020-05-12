@@ -682,13 +682,13 @@ void on_display() {
 		}	
 	}
 	//ako animacija traje pomeramo igraca
-	if(animation_ongoing && !fail_condition){
+	if (animation_ongoing && !fail_condition){
 		//u zavisnosti od smera umanjujemo ili povecavamo
 		if(positive_dir)    
 			position[direction] += vel_incr;
 		else
 			position[direction] -= vel_incr;
-		} else {
+		} else if (fail_condition){
 			if(fail_animation_parameter<=0.5){
 				if(positive_dir)    
 					position[direction] += vel_incr;
@@ -707,8 +707,7 @@ void on_display() {
 			}
    
 	//pomeramo igraca
-
-	glTranslatef(position[0],position[1],position[2]);		
+    glTranslatef(position[0],position[1],position[2]);		
 
     
     //lopta tj. igrac koji se krece po kvadratima
