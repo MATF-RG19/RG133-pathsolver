@@ -1,6 +1,8 @@
 #include <GL/glut.h>
 #include <stdio.h>
+#include <string.h>
 #include <math.h>
+
 
 #define TIMER_INTERVAL 20
 #define TIMER_ID 0
@@ -30,16 +32,23 @@ GLfloat position[] = {1.5,0.1,0.5};
 //smer kretanja igraca koji je u pocetku u smeru z ose
 int direction  = 2;
 //da li je pozitivan smer, u pocetku jeste pa je jednak 1
+//tj da li inkrementiramo ili dekrementiramo kretanje
 int positive_dir = 1;
 
 //brzina kretanja lopte
 float vel_incr = 0.02;
 
 
+
+//pocetni nivo igrice
 int NIVO = 1;
 
+
+
 //matrice za pozicije kvadrata kao i aktivnih kvadrata, po nivoima
+//aktivni kvadrati su kvadrati gde igrac stoji na pocetku nivoa
 //lvl1
+
 int lvl1_kvadrati[2][3] = {{1,1,0},{1,1,1}};
 
 int lvl1_aktivni[2][3] = {{0,0,0},{1,0,0}};
@@ -312,7 +321,7 @@ void on_display() {
     
     
     //kamera se pomera sa igracem
-    gluLookAt(position[0], position[1]+8, position[2]-8,
+    gluLookAt(position[0], position[1]+7, position[2]-7,
               position[0], position[1], position[2],
               0, 1, 0);
 
@@ -321,8 +330,12 @@ void on_display() {
    	         
 	glPushMatrix();
 
-	int i=0,j=0;
+
 	
+	
+	
+	
+	int i=0,j=0;
 	//iscrtavanje kvadrata po nivoima
 	switch(NIVO) {
 		case 1 :
@@ -620,8 +633,6 @@ void on_display() {
 	    case 1:
 			if(!(trunc(position[0])<2 &&(trunc(position[0])>=0)))
 				fail_condition=1;
-	  
-	    //TODO umesto prekidanja programa, napraviti animaciju propadanja lopte , pa zatvoriti program
 			if(!(lvl1_kvadrati[(int)trunc(position[0])][(int)trunc(position[2])]))
 				fail_condition=1; 
 			break;
@@ -689,6 +700,7 @@ void on_display() {
 		else
 			position[direction] -= vel_incr;
 		} else if (fail_condition){
+			//idemo malo napred, pa propadamo, ala Pera Kojot	
 			if(fail_animation_parameter<=0.5){
 				if(positive_dir)    
 					position[direction] += vel_incr;
@@ -696,6 +708,7 @@ void on_display() {
 					position[direction] -= vel_incr;
 				fail_animation_parameter += vel_incr;
 				} else {
+					//propadanje po y osi
 					if(fail_animation_parameter<=2.5){
 						position[1] -= vel_incr;
 						fail_animation_parameter += vel_incr;
@@ -829,10 +842,43 @@ void on_display() {
 					break;									
 			}
 		}
-}
+	}
     glPopMatrix();
- 
+	
+	//menjamo projekciju i stampamo tekst 
+	glMatrixMode(GL_PROJECTION);
+    glPushMatrix();
+    glLoadIdentity();
+    
+    gluOrtho2D(0.0, 800, 0.0, 800);
+    glMatrixMode(GL_MODELVIEW);
+    glPushMatrix();
+    glLoadIdentity();
+    //pozicija teksta
+    glRasterPos2i(20, 780);
+    char nivo_tekst[] = "NIVO : ";
+	//trenutni nivo
+	char ch = NIVO + '0';
+	
+	strncat(nivo_tekst, &ch, 1); 
+
+    void * font = GLUT_BITMAP_HELVETICA_18;
+    
+    for (int i=0;i<strlen(nivo_tekst);i++)
+    {
+		char c = nivo_tekst[i];
+		glColor3d(1.0, 0.0, 0.0);
+		glutBitmapCharacter(font, c);
+	}
+	glMatrixMode(GL_MODELVIEW);
+	glPopMatrix();
+	glMatrixMode(GL_PROJECTION);
+	glPopMatrix();
+
+
+
 
     
     glutSwapBuffers();
+
 }
