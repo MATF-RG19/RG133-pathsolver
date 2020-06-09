@@ -4,7 +4,7 @@ CFLAGS    = -g -Wall
 LDFLAGS   = -lGL -lGLU -lglut -lm
 
 $(PROGRAM): main.o
-	$(CC) -o $(PROGRAM) main.c $(LDFLAGS)
+	$(CC) -o $(PROGRAM) main.c funkcije.c $(LDFLAGS) 
 
 .PHONY: clean dist
 
