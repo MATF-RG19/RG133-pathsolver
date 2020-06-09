@@ -69,7 +69,17 @@ int lvl10_aktivni[6][5] = {{0,0,0,0,0},{1,0,0,0,0},{0,0,0,0,0},{0,0,0,0,0},{0,0,
 
 //dimenzije matrica nivoa
 int nivo_dimenzije [10][2] = {{2,3},{3,3},{2,6},{3,5},{5,5},{5,5},{6,6},{4,6},{5,5},{6,5}};
-					
+
+//C ce podesiti preostala polja matrice na nulu
+//podesavamo za prvi nivo globalnu promenljivu
+
+int curr_lvl_kv[7][7]={{1,1,1,0,0,0,0},{1,1,1,0,0,0,0}};
+
+int curr_lvl_akt[7][7] ={{1,0,0,0,0,0,0}};
+
+
+
+
 
 
 
@@ -168,76 +178,23 @@ void postavi_nivo(int lvl){
 	int matj=nivo_dimenzije[lvl-1][1];
 	
 	
-	int kvadrati[mati][matj];
-	int aktivni [mati][matj];
-	
-	for(i=0;i<mati;i++)
-		for(j=0;j<matj;j++){
-			switch(lvl){
-			case 1: 
-					kvadrati[i][j]=lvl1_kvadrati[i][j];
-			        aktivni[i][j]=lvl1_aktivni[i][j];
-					break;
-			case 2: 
-					kvadrati[i][j]=lvl2_kvadrati[i][j];
-			        aktivni[i][j]=lvl2_aktivni[i][j];
-					break;
-			case 3: 
-					kvadrati[i][j]=lvl3_kvadrati[i][j];
-			        aktivni[i][j]=lvl3_aktivni[i][j];
-					break;
-			case 4: 
-					kvadrati[i][j]=lvl4_kvadrati[i][j];
-			        aktivni[i][j]=lvl4_aktivni[i][j];
-					break;
-			case 5: 
-					kvadrati[i][j]=lvl5_kvadrati[i][j];
-			        aktivni[i][j]=lvl5_aktivni[i][j];
-					break;
-			case 6: 
-					kvadrati[i][j]=lvl6_kvadrati[i][j];
-			        aktivni[i][j]=lvl6_aktivni[i][j];
-					break;
-			case 7: 
-					kvadrati[i][j]=lvl7_kvadrati[i][j];
-			        aktivni[i][j]=lvl7_aktivni[i][j];
-					break;
-			case 8: 
-					kvadrati[i][j]=lvl8_kvadrati[i][j];
-			        aktivni[i][j]=lvl8_aktivni[i][j];
-					break;
-			case 9: 
-					kvadrati[i][j]=lvl9_kvadrati[i][j];
-			        aktivni[i][j]=lvl9_aktivni[i][j];
-					break;
-			case 10: 
-					kvadrati[i][j]=lvl10_kvadrati[i][j];
-			        aktivni[i][j]=lvl10_aktivni[i][j];
-					break;
-			}
-	}
-	
-	i=0;
-	j=0;
-	
-	
 	while(i<mati){
 				j=0;
 				while(j<matj){
 				//ako nije obrisan, iscrtavamo kvadrat
-					if(kvadrati[i][j]){
+					if(curr_lvl_kv[i][j]){
 					//provera da li je igrac i dalje na kvadratu ako nije onda ga brisemo, takodje proveravamo da li je igrac presao na neki drugi kvadrat
-						if(aktivni[i][j]){
+						if(curr_lvl_akt[i][j]){
 							if(provera(i+0.5,j+0.5)){
 								postavi_boje(1.0,0.4,0.3,0.9);  
 								draw_square2(0.5+i,0.5+j);
 							} else {
-								kvadrati[i][j]=0;
-								aktivni[i][j]=0;
+								curr_lvl_kv[i][j]=0;
+								curr_lvl_akt[i][j]=0;
 								}
 							} else {
 								if(provera(i+0.5,j+0.5))
-									aktivni[i][j]=1;
+									curr_lvl_akt[i][j]=1;
 								postavi_boje(0.9,0.3,0.3,0.9);  
 								draw_square2(0.5+i,0.5+j);
 								}
@@ -245,52 +202,6 @@ void postavi_nivo(int lvl){
 					j+=1;
 					}
 				i+=1;
-			}
-			
-	for(i=0;i<mati;i++)
-		for(j=0;j<matj;j++){
-			switch(lvl) {
-				case 1:
-					lvl1_kvadrati[i][j]=kvadrati[i][j];
-					lvl1_aktivni[i][j]=aktivni[i][j];
-					break;
-				case 2:
-					lvl2_kvadrati[i][j]=kvadrati[i][j];
-					lvl2_aktivni[i][j]=aktivni[i][j];
-					break;		
-				case 3:
-					lvl3_kvadrati[i][j]=kvadrati[i][j];
-					lvl3_aktivni[i][j]=aktivni[i][j];
-					break;
-				case 4:
-					lvl4_kvadrati[i][j]=kvadrati[i][j];
-					lvl4_aktivni[i][j]=aktivni[i][j];
-					break;
-				case 5:
-					lvl5_kvadrati[i][j]=kvadrati[i][j];
-					lvl5_aktivni[i][j]=aktivni[i][j];
-					break;
-				case 6:
-					lvl6_kvadrati[i][j]=kvadrati[i][j];
-					lvl6_aktivni[i][j]=aktivni[i][j];
-					break;
-				case 7:
-					lvl7_kvadrati[i][j]=kvadrati[i][j];
-					lvl7_aktivni[i][j]=aktivni[i][j];
-					break;
-				case 8:
-					lvl8_kvadrati[i][j]=kvadrati[i][j];
-					lvl8_aktivni[i][j]=aktivni[i][j];
-					break;
-				case 9:
-					lvl9_kvadrati[i][j]=kvadrati[i][j];
-					lvl9_aktivni[i][j]=aktivni[i][j];
-					break;
-				case 10:
-					lvl10_kvadrati[i][j]=kvadrati[i][j];
-					lvl10_aktivni[i][j]=aktivni[i][j];
-					break;				
-				}
 			}
 		
 		}
@@ -306,48 +217,9 @@ void fail_condition_check(int lvl) {
 	int mati=nivo_dimenzije[lvl-1][0];
 	int matj=nivo_dimenzije[lvl-1][1];
 	
-	
-	int kvadrati[mati][matj];
-	
-	for(i=0;i<mati;i++)
-		for(j=0;j<matj;j++){
-			switch(lvl){
-			case 1: 
-					kvadrati[i][j]=lvl1_kvadrati[i][j];
-					break;
-			case 2: 
-					kvadrati[i][j]=lvl2_kvadrati[i][j];
-					break;
-			case 3: 
-					kvadrati[i][j]=lvl3_kvadrati[i][j];
-					break;
-			case 4: 
-					kvadrati[i][j]=lvl4_kvadrati[i][j];
-					break;
-			case 5: 
-					kvadrati[i][j]=lvl5_kvadrati[i][j];
-					break;
-			case 6: 
-					kvadrati[i][j]=lvl6_kvadrati[i][j];
-					break;
-			case 7: 
-					kvadrati[i][j]=lvl7_kvadrati[i][j];
-					break;
-			case 8: 
-					kvadrati[i][j]=lvl8_kvadrati[i][j];
-					break;
-			case 9: 
-					kvadrati[i][j]=lvl9_kvadrati[i][j];
-					break;
-			case 10: 
-					kvadrati[i][j]=lvl10_kvadrati[i][j];
-					break;
-			}
-	}
-	
 	if(!(trunc(position[2])<matj && (trunc(position[0])>=0) && (trunc(position[0])<=mati-1)) )
 				fail_condition=1;
-	if(!(kvadrati[(int)trunc(position[0])][(int)trunc(position[2])]))
+	if(!(curr_lvl_kv[(int)trunc(position[0])][(int)trunc(position[2])]))
 				fail_condition=1; 
 	
 	
@@ -364,50 +236,11 @@ int get_number_of_sq(int lvl) {
 	int matj=nivo_dimenzije[lvl-1][1];
 	
 	
-	int kvadrati[mati][matj];
-	
-	for(int i=0;i<mati;i++)
-		for(int j=0;j<matj;j++){
-			switch(lvl){
-			case 1: 
-					kvadrati[i][j]=lvl1_kvadrati[i][j];
-					break;
-			case 2: 
-					kvadrati[i][j]=lvl2_kvadrati[i][j];
-					break;
-			case 3: 
-					kvadrati[i][j]=lvl3_kvadrati[i][j];
-					break;
-			case 4: 
-					kvadrati[i][j]=lvl4_kvadrati[i][j];
-					break;
-			case 5: 
-					kvadrati[i][j]=lvl5_kvadrati[i][j];
-					break;
-			case 6: 
-					kvadrati[i][j]=lvl6_kvadrati[i][j];
-					break;
-			case 7: 
-					kvadrati[i][j]=lvl7_kvadrati[i][j];
-					break;
-			case 8: 
-					kvadrati[i][j]=lvl8_kvadrati[i][j];
-					break;
-			case 9: 
-					kvadrati[i][j]=lvl9_kvadrati[i][j];
-					break;
-			case 10: 
-					kvadrati[i][j]=lvl10_kvadrati[i][j];
-					break;
-			}
-	}
-	
-	
 	int num=0;
 	
 	for(int i=0;i<mati;i++)
 		for(int j=0;j<matj;j++)
-			num += kvadrati[i][j]? 1: 0;
+			num += curr_lvl_kv[i][j]? 1: 0;
 	
 	return num;
 	}
@@ -458,4 +291,70 @@ void print_level_info() {
 	
 	}
 
+//postavjavljamo sva polja pomocnih globalnih promenljivih na nule pre nego sto ih izmenimo
+void set_zeroes(){
+		for (int i=0;i<7;i++)
+			for (int j=0;j<7;j++){
+				curr_lvl_kv[i][j]=0;
+				curr_lvl_akt[i][j]=0;
+				}
+	}
+
+//postavljamo za trenutni nivo matricu kvadrata(kao i aktivnih kvadrata)
+void set_current_level(int lvl){
+		
+	int i=0,j=0;
+	
+	
+	int mati=nivo_dimenzije[lvl-1][0];
+	int matj=nivo_dimenzije[lvl-1][1];
+	
+	for(i=0;i<mati;i++)
+		for(j=0;j<matj;j++){
+			switch(lvl){
+			case 1: 
+					curr_lvl_kv[i][j]=lvl1_kvadrati[i][j];
+			        curr_lvl_akt[i][j]=lvl1_aktivni[i][j];
+					break;
+			case 2: 
+					curr_lvl_kv[i][j]=lvl2_kvadrati[i][j];
+			        curr_lvl_akt[i][j]=lvl2_aktivni[i][j];
+					break;
+			case 3: 
+					curr_lvl_kv[i][j]=lvl3_kvadrati[i][j];
+			        curr_lvl_akt[i][j]=lvl3_aktivni[i][j];
+					break;
+			case 4: 
+					curr_lvl_kv[i][j]=lvl4_kvadrati[i][j];
+			        curr_lvl_akt[i][j]=lvl4_aktivni[i][j];
+					break;
+			case 5: 
+					curr_lvl_kv[i][j]=lvl5_kvadrati[i][j];
+			        curr_lvl_akt[i][j]=lvl5_aktivni[i][j];
+					break;
+			case 6: 
+					curr_lvl_kv[i][j]=lvl6_kvadrati[i][j];
+			        curr_lvl_akt[i][j]=lvl6_aktivni[i][j];
+					break;
+			case 7: 
+					curr_lvl_kv[i][j]=lvl7_kvadrati[i][j];
+			        curr_lvl_akt[i][j]=lvl7_aktivni[i][j];
+					break;
+			case 8: 
+					curr_lvl_kv[i][j]=lvl8_kvadrati[i][j];
+			        curr_lvl_akt[i][j]=lvl8_aktivni[i][j];
+					break;
+			case 9: 
+					curr_lvl_kv[i][j]=lvl9_kvadrati[i][j];
+			        curr_lvl_akt[i][j]=lvl9_aktivni[i][j];
+					break;
+			case 10: 
+					curr_lvl_kv[i][j]=lvl10_kvadrati[i][j];
+			        curr_lvl_akt[i][j]=lvl10_aktivni[i][j];
+					break;
+			}
+		}
+	
+	
+	}
 

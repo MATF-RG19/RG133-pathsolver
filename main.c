@@ -266,6 +266,11 @@ void on_display() {
 			if(NIVO==10)
 				exit(EXIT_SUCCESS);
 			NIVO+=1;
+			set_zeroes();
+			
+			
+			set_current_level(NIVO);
+			
 			set_player_position(NIVO);
 		}
 	}

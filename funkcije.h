@@ -46,6 +46,11 @@ extern int lvl10_kvadrati[6][5];
 extern int lvl10_aktivni[6][5];
 
 
+
+extern int curr_lvl_kv[7][7];
+extern int curr_lvl_akt[7][7];
+
+
 extern int nivo_dimenzije [10][2];
 
 extern float player_position[9][1][2];
@@ -72,9 +77,9 @@ int get_number_of_sq(int lvl);
 
 void print_level_info();
 
+void set_zeroes();
 
-
-
+void set_current_level(int lvl);
 
 
 #endif
