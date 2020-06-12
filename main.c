@@ -88,12 +88,12 @@ int main(int argc, char **argv)
     glLightfv(GL_LIGHT0, GL_SPECULAR, light_specular);
     glLightfv(GL_LIGHT0, GL_DIFFUSE, light_diffuse);
 
-	glClearColor(0.1,1,1,1);
+    glClearColor(0.1,1,1,1);
 	
-	initialize_textures();
+    initialize_textures();
 	
-	glEnable(GL_NORMALIZE);
-	glEnable(GL_CULL_FACE);
+    glEnable(GL_NORMALIZE);
+    glEnable(GL_CULL_FACE);
 	//pozivamo jer obrcemo smer x ose
 	glFrontFace(GL_CW);
 	glLightModeli(GL_LIGHT_MODEL_TWO_SIDE, 1);
