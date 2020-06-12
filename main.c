@@ -3,23 +3,41 @@
 #include <string.h>
 #include <math.h>
 #include "funkcije.h"
-
+#include "image.h"
 
 #define TIMER_INTERVAL 20
 #define TIMER_ID 0
 #define PI 3.14159265359
+
+#define TEXTUREFILE1 "textures/quad_texture.bmp"
+#define TEXTUREFILE2 "textures/act_quad_texture.bmp"
+
 
 static void on_display();
 static void on_reshape(int width, int height);
 static void on_keyboard(unsigned char key, int x, int y);
 static void on_keyboard2(int key, int x, int y);
 static void on_timer(int id);
+static void initialize_textures();
+
+//pomocne funkcije
+
+static void draw_square2(float x_coord, float z_coord, int activated);
+
+static void draw_grid();
+
+static void postavi_nivo(int lvl);
+
+static void postavi_boje(float red, float green, float blue, float transparency);
 
 
 //globalne promenljive za animaciju
 float animation_parameter = 0;
 int animation_ongoing = 0;
 
+
+//imena tekstura
+static GLuint tex_names[2];
 
 
 
@@ -31,8 +49,6 @@ int positive_dir = 1;
 
 //brzina kretanja lopte
 float vel_incr = 0.02;
-
-
 
 
 
@@ -73,6 +89,9 @@ int main(int argc, char **argv)
     glLightfv(GL_LIGHT0, GL_DIFFUSE, light_diffuse);
 
 	glClearColor(0.1,1,1,1);
+	
+	initialize_textures();
+	
 	glEnable(GL_NORMALIZE);
 	glEnable(GL_CULL_FACE);
 	//pozivamo jer obrcemo smer x ose
@@ -103,6 +122,7 @@ void on_keyboard(unsigned char key, int x, int y) {
 		}
             break;       
         case 27:
+		  glDeleteTextures(1, tex_names);
           exit(0);
           break;
           
@@ -153,6 +173,7 @@ void on_keyboard2(int key, int x, int y){
 	}
 
 
+//timer i funkcija za ponovno iscrtavanje prozora
 
 void on_timer(int id) {
     if (id == TIMER_ID) {
@@ -237,6 +258,7 @@ void on_display() {
 						fail_animation_parameter += vel_incr;
 						} else {
 							//dosli smo do kraja animacije propadanja i izlazimo iz programa
+							glDeleteTextures(2, tex_names);
 							exit(EXIT_FAILURE);
 							}
 					}
@@ -263,8 +285,10 @@ void on_display() {
     //ako smo ostali sa samo jednim kvadratom onda prelazimo na sledeci nivo
     if(!fail_condition){
 		if(num_of_sq==1){
-			if(NIVO==10)
+			if(NIVO==10){
+				glDeleteTextures(2, tex_names);
 				exit(EXIT_SUCCESS);
+			}
 			NIVO+=1;
 			set_zeroes();
 			
@@ -280,13 +304,184 @@ void on_display() {
 		
 	
 	print_level_info();
-	
 
+    glBindTexture(GL_TEXTURE_2D, 0);
 
-
-
-
-    
     glutSwapBuffers();
 
 }
+
+//Pomocna funkcija koja ucitava teksture
+//kod za rad sa teksturama preuzet sa sedmog casa Racunarske grafike
+
+void initialize_textures(){
+	
+	Image* image;
+	glEnable(GL_TEXTURE_2D);
+
+    glTexEnvf(GL_TEXTURE_ENV,
+              GL_TEXTURE_ENV_MODE,
+              GL_REPLACE);
+	
+	
+	
+	image = image_init(0, 0);
+	image_read(image, TEXTUREFILE1);
+	
+	glGenTextures(2, tex_names);
+	
+	
+	glBindTexture(GL_TEXTURE_2D, tex_names[0]);
+    glTexParameteri(GL_TEXTURE_2D,
+                    GL_TEXTURE_WRAP_S, GL_CLAMP);
+    glTexParameteri(GL_TEXTURE_2D,
+                    GL_TEXTURE_WRAP_T, GL_CLAMP);
+    glTexParameteri(GL_TEXTURE_2D,
+                    GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+    glTexParameteri(GL_TEXTURE_2D,
+                    GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB,
+                 image->width, image->height, 0,
+                 GL_RGB, GL_UNSIGNED_BYTE, image->pixels);
+	
+	image_read(image, TEXTUREFILE2);
+	
+	glBindTexture(GL_TEXTURE_2D, tex_names[1]);
+    glTexParameteri(GL_TEXTURE_2D,
+                    GL_TEXTURE_WRAP_S, GL_CLAMP);
+    glTexParameteri(GL_TEXTURE_2D,
+                    GL_TEXTURE_WRAP_T, GL_CLAMP);
+    glTexParameteri(GL_TEXTURE_2D,
+                    GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+    glTexParameteri(GL_TEXTURE_2D,
+                    GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB,
+                 image->width, image->height, 0,
+                 GL_RGB, GL_UNSIGNED_BYTE, image->pixels);
+	
+	
+	glBindTexture(GL_TEXTURE_2D, 0);
+	
+	
+	image_done(image);
+	
+	}
+
+
+
+
+
+//pomocna funkcija za postavljanje boja
+void postavi_boje(float red, float green, float blue, float transparency){
+
+    	GLfloat ambient[] = {0.3,0.3,0.3,0};
+	    GLfloat diffuse[] = {red,green,blue,transparency};
+    	GLfloat specular[] = {0.6,0.6,0.6,0};
+    	GLfloat shininess = 80;
+
+    	glMaterialfv(GL_FRONT_AND_BACK, GL_AMBIENT, ambient);
+    	glMaterialfv(GL_FRONT_AND_BACK, GL_DIFFUSE, diffuse);
+    	glMaterialfv(GL_FRONT_AND_BACK, GL_SPECULAR, specular);
+    	glMaterialf(GL_FRONT_AND_BACK, GL_SHININESS, shininess);
+
+}
+
+
+
+
+//pomocna funkcija za iscrtavanje mreze kvadrata
+void draw_grid(){
+	
+	glBegin(GL_LINES);
+	for(int i=0;i<=10;i++) {
+		if (i==0) { glColor3f(.6,.3,.3); } else { glColor3f(.25,.25,.25); };
+		glVertex3f(i,0,0);
+		glVertex3f(i,0,10);
+		if (i==0) { glColor3f(.3,.3,.6); } else { glColor3f(.25,.25,.25); };
+		glVertex3f(0,0,i);
+		glVertex3f(10,0,i);
+	};
+	glEnd();	
+	
+	}
+
+
+
+
+//Pomocna funkcija za iscrtavanje kvadrata, activated ima vrednost 0 ili 1 u zavisnosti od toga da li je kvadrat aktivan , tj igrac stoji na njemu ili ne
+
+void draw_square2(float x_coord, float z_coord, int activated){
+	glPushMatrix();
+	glTranslatef(x_coord,0,z_coord);
+	
+	glColor3f(0,0,0);
+	
+	glBindTexture(GL_TEXTURE_2D, tex_names[activated]);
+	glBegin(GL_QUADS);
+	glNormal3f(0,1,0);
+	
+	glTexCoord2f(0, 0);
+	glVertex3f(0.5,0,0.5);
+	
+	glTexCoord2f(0, 1);
+	glVertex3f(0.5,0,-0.5);
+	
+	glTexCoord2f(1, 1);
+	glVertex3f(-0.5,0,-0.5);
+	
+	glTexCoord2f(1, 0);
+	glVertex3f(-0.5,0,0.5);
+	
+	glEnd();
+	postavi_boje(0,0,0,1);
+	
+	/* Iskljucujemo aktivnu teksturu */
+    glBindTexture(GL_TEXTURE_2D, 0);
+	
+	glPushMatrix();
+	glTranslatef(0,0.005,0);
+	glBegin(GL_LINE_STRIP);
+	glVertex3f(0.5,0,0.5);
+	glVertex3f(0.5,0,-0.5);
+	glVertex3f(-0.5,0,-0.5);
+	glVertex3f(-0.5,0,0.5);	
+	glEnd();
+	glPopMatrix();
+	glPopMatrix();
+	}
+	
+// pomocna funkcija za postavljanje nivoa, takodje postavlja neaktivne kvadrate
+void postavi_nivo(int lvl){
+	
+	int i=0,j=0;
+	
+	
+	int mati=nivo_dimenzije[lvl-1][0];
+	int matj=nivo_dimenzije[lvl-1][1];
+	
+	
+	while(i<mati){
+				j=0;
+				while(j<matj){
+				//ako nije obrisan, iscrtavamo kvadrat
+					if(curr_lvl_kv[i][j]){
+					//provera da li je igrac i dalje na kvadratu ako nije onda ga brisemo, takodje proveravamo da li je igrac presao na neki drugi kvadrat
+						if(curr_lvl_akt[i][j]){
+							if(provera(i+0.5,j+0.5)){
+								draw_square2(0.5+i,0.5+j, 1);
+							} else {
+								curr_lvl_kv[i][j]=0;
+								curr_lvl_akt[i][j]=0;
+								}
+							} else {
+								if(provera(i+0.5,j+0.5))
+									curr_lvl_akt[i][j]=1; 
+								draw_square2(0.5+i,0.5+j,0);
+								}
+						}
+					j+=1;
+					}
+				i+=1;
+			}
+		
+		}

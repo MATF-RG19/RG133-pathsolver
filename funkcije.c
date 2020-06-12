@@ -99,61 +99,7 @@ float player_position[9][1][2] = {
 	{{1.5,0.5}}
 	};
 
-//pomocna funkcija za postavljanje boja
-void postavi_boje(float red, float green, float blue, float transparency){
 
-    	GLfloat ambient[] = {0.3,0.3,0.3,0};
-	    GLfloat diffuse[] = {red,green,blue,transparency};
-    	GLfloat specular[] = {0.6,0.6,0.6,0};
-    	GLfloat shininess = 80;
-
-    	glMaterialfv(GL_FRONT_AND_BACK, GL_AMBIENT, ambient);
-    	glMaterialfv(GL_FRONT_AND_BACK, GL_DIFFUSE, diffuse);
-    	glMaterialfv(GL_FRONT_AND_BACK, GL_SPECULAR, specular);
-    	glMaterialf(GL_FRONT_AND_BACK, GL_SHININESS, shininess);
-
-}
-
-
-
-
-//pomocna funkcija za iscrtavanje mreze kvadrata
-void draw_grid(){
-	
-	glBegin(GL_LINES);
-	for(int i=0;i<=10;i++) {
-		if (i==0) { glColor3f(.6,.3,.3); } else { glColor3f(.25,.25,.25); };
-		glVertex3f(i,0,0);
-		glVertex3f(i,0,10);
-		if (i==0) { glColor3f(.3,.3,.6); } else { glColor3f(.25,.25,.25); };
-		glVertex3f(0,0,i);
-		glVertex3f(10,0,i);
-	};
-	glEnd();	
-	
-	}
-
-
-
-
-//Pomocna funkcija za iscrtavanje kvadrata
-void draw_square2(float x_coord, float z_coord){
-	glPushMatrix();
-	glPushMatrix();
-	glTranslatef(x_coord,0,z_coord);
-	glScalef(1,0.049,1);
-	glutSolidCube(1);
-	glPopMatrix();
-	postavi_boje(0,0,0,1);
-	//kako bismo sprecili z fighting jedan od laksih nacina
-	glPushMatrix();	
-	glTranslatef(x_coord,0,z_coord);
-	glScalef(1,0.057,1);
-	glutWireCube(1);
-	glPopMatrix();
-	glPopMatrix();
-	}
-	
 //provera da li je se kvadrat iscrtava
 int provera(float x, float z){
 	
@@ -168,44 +114,7 @@ int provera(float x, float z){
 	
 
 
-// pomocna funkcija za postavljanje nivoa, takodje postavlja neaktivne kvadrate
-void postavi_nivo(int lvl){
-	
-	int i=0,j=0;
-	
-	
-	int mati=nivo_dimenzije[lvl-1][0];
-	int matj=nivo_dimenzije[lvl-1][1];
-	
-	
-	while(i<mati){
-				j=0;
-				while(j<matj){
-				//ako nije obrisan, iscrtavamo kvadrat
-					if(curr_lvl_kv[i][j]){
-					//provera da li je igrac i dalje na kvadratu ako nije onda ga brisemo, takodje proveravamo da li je igrac presao na neki drugi kvadrat
-						if(curr_lvl_akt[i][j]){
-							if(provera(i+0.5,j+0.5)){
-								postavi_boje(1.0,0.4,0.3,0.9);  
-								draw_square2(0.5+i,0.5+j);
-							} else {
-								curr_lvl_kv[i][j]=0;
-								curr_lvl_akt[i][j]=0;
-								}
-							} else {
-								if(provera(i+0.5,j+0.5))
-									curr_lvl_akt[i][j]=1;
-								postavi_boje(0.9,0.3,0.3,0.9);  
-								draw_square2(0.5+i,0.5+j);
-								}
-						}
-					j+=1;
-					}
-				i+=1;
-			}
-		
-		}
-	
+
 
 	
 //pomocna funkcija za proveru da li je igrac na validnom delu mreze kvadrata

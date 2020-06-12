@@ -59,13 +59,7 @@ extern float player_position[9][1][2];
 //funkcije
 
 
-void draw_square2(float x_coord, float z_coord);
 
-void draw_grid();
-
-void postavi_nivo(int lvl);
-
-void postavi_boje(float red, float green, float blue, float transparency);
 
 int provera(float x, float z);
 
