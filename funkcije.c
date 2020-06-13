@@ -67,8 +67,14 @@ int lvl10_kvadrati[6][5] = {{0,0,1,1,1},{1,1,1,0,1},{1,0,1,1,1},{1,0,1,1,1},{1,1
 
 int lvl10_aktivni[6][5] = {{0,0,0,0,0},{1,0,0,0,0},{0,0,0,0,0},{0,0,0,0,0},{0,0,0,0,0},{0,0,0,0,0}};
 
+//lvl 11
+
+int lvl11_kvadrati[4][5] = {{0,1,1,1,0},{1,1,1,1,1},{1,0,1,0,1},{1,1,1,1,1}};
+
+int lvl11_aktivni[4][5] = {{0,1,0,0,0},{0,0,0,0,0},{0,0,0,0,0},{0,0,0,0,0}};
+
 //dimenzije matrica nivoa
-int nivo_dimenzije [10][2] = {{2,3},{3,3},{2,6},{3,5},{5,5},{5,5},{6,6},{4,6},{5,5},{6,5}};
+int nivo_dimenzije [11][2] = {{2,3},{3,3},{2,6},{3,5},{5,5},{5,5},{6,6},{4,6},{5,5},{6,5},{4,5}};
 
 //C ce podesiti preostala polja matrice na nulu
 //podesavamo za prvi nivo globalnu promenljivu
@@ -80,13 +86,47 @@ int curr_lvl_akt[7][7] ={{1,0,0,0,0,0,0}};
 
 
 
+//pomocna funkcija za postavljanje boja
+void postavi_boje(float red, float green, float blue, float transparency){
+
+    	GLfloat ambient[] = {0.3,0.3,0.3,0};
+	    GLfloat diffuse[] = {red,green,blue,transparency};
+    	GLfloat specular[] = {0.6,0.6,0.6,0};
+    	GLfloat shininess = 80;
+
+    	glMaterialfv(GL_FRONT_AND_BACK, GL_AMBIENT, ambient);
+    	glMaterialfv(GL_FRONT_AND_BACK, GL_DIFFUSE, diffuse);
+    	glMaterialfv(GL_FRONT_AND_BACK, GL_SPECULAR, specular);
+    	glMaterialf(GL_FRONT_AND_BACK, GL_SHININESS, shininess);
+
+}
+
+
+
+//pomocna funkcija za iscrtavanje mreze kvadrata
+void draw_grid(){
+	
+	glBegin(GL_LINES);
+	for(int i=0;i<=10;i++) {
+		if (i==0) { glColor3f(.6,.3,.3); } else { glColor3f(.25,.25,.25); };
+		glVertex3f(i,0,0);
+		glVertex3f(i,0,10);
+		if (i==0) { glColor3f(.3,.3,.6); } else { glColor3f(.25,.25,.25); };
+		glVertex3f(0,0,i);
+		glVertex3f(10,0,i);
+	};
+	glEnd();	
+	
+	}
+
+
 
 
 
 
 //podesavamo inicijalnu poziciju igraca,tj da li je na prvom, drugom , trecem kvadratu...
 
-float player_position[9][1][2] = {
+float player_position[10][1][2] = {
 	
 	{{0.5,0.5}}, //lvl2 position, jer smo vec postavili pozicije za prvi nivo
 	{{1.5,0.5}},
@@ -96,7 +136,8 @@ float player_position[9][1][2] = {
 	{{2.5,0.5}},
 	{{0.5,0.5}},
 	{{0.5,0.5}},
-	{{1.5,0.5}}
+	{{1.5,0.5}},
+	{{0.5,1.5}}
 	};
 
 
@@ -110,10 +151,6 @@ int provera(float x, float z){
 	return 0;
 
 	}
-
-	
-
-
 
 
 	
@@ -163,42 +200,7 @@ void set_player_position(int lvl) {
 	
 	}
 
-//pomocna funkcija za ispisivanje nivoa
 
-void print_level_info() {
-
-	glMatrixMode(GL_PROJECTION);
-    glPushMatrix();
-    glLoadIdentity();
-    
-    gluOrtho2D(0.0, 800, 0.0, 800);
-    glMatrixMode(GL_MODELVIEW);
-    glPushMatrix();
-    glLoadIdentity();
-    //pozicija teksta
-    glRasterPos2i(20, 780);
-    char nivo_tekst[] = "NIVO : ";
-	//trenutni nivo
-	char ch = NIVO + '0';
-	
-	strncat(nivo_tekst, &ch, 1); 
-
-    void * font = GLUT_BITMAP_HELVETICA_18;
-    
-    for (int i=0;i<strlen(nivo_tekst);i++)
-    {
-		char c = nivo_tekst[i];
-		glColor3d(1.0, 0.0, 0.0);
-		glutBitmapCharacter(font, c);
-	}
-	glMatrixMode(GL_MODELVIEW);
-	glPopMatrix();
-	glMatrixMode(GL_PROJECTION);
-	glPopMatrix();	
-	
-	
-	
-	}
 
 //postavjavljamo sva polja pomocnih globalnih promenljivih na nule pre nego sto ih izmenimo
 void set_zeroes(){
@@ -261,9 +263,49 @@ void set_current_level(int lvl){
 					curr_lvl_kv[i][j]=lvl10_kvadrati[i][j];
 			        curr_lvl_akt[i][j]=lvl10_aktivni[i][j];
 					break;
+			case 11: 
+					curr_lvl_kv[i][j]=lvl11_kvadrati[i][j];
+			        curr_lvl_akt[i][j]=lvl11_aktivni[i][j];
+					break;
 			}
 		}
 	
 	
 	}
 
+//pomocna funkcija za ispisivanje nivoa
+
+void print_level_info() {
+
+	glMatrixMode(GL_PROJECTION);
+    glPushMatrix();
+    glLoadIdentity();
+    
+    gluOrtho2D(0.0, 800, 0.0, 800);
+    glMatrixMode(GL_MODELVIEW);
+    glPushMatrix();
+    glLoadIdentity();
+    //pozicija teksta
+    glRasterPos2i(20, 780);
+    char nivo_tekst[] = "NIVO : ";
+	//trenutni nivo
+	char ch = NIVO + '0';
+	
+	strncat(nivo_tekst, &ch, 1); 
+
+    void * font = GLUT_BITMAP_HELVETICA_18;
+    
+    for (int i=0;i<strlen(nivo_tekst);i++)
+    {
+		char c = nivo_tekst[i];
+		glColor3d(1.0, 0.0, 0.0);
+		glutBitmapCharacter(font, c);
+	}
+	glMatrixMode(GL_MODELVIEW);
+	glPopMatrix();
+	glMatrixMode(GL_PROJECTION);
+	glPopMatrix();	
+	
+	
+	
+	}

@@ -8,6 +8,8 @@
 
 //globalne promenljive
 
+#define MAX_LEVEL 11
+
 
 extern int fail_condition;
 extern float fail_animation_parameter;
@@ -51,15 +53,16 @@ extern int curr_lvl_kv[7][7];
 extern int curr_lvl_akt[7][7];
 
 
-extern int nivo_dimenzije [10][2];
+extern int nivo_dimenzije [11][2];
 
-extern float player_position[9][1][2];
+extern float player_position[10][1][2];
 
 
 //funkcije
 
+void postavi_boje(float red, float green, float blue, float transparency);
 
-
+void draw_grid();
 
 int provera(float x, float z);
 
@@ -69,11 +72,11 @@ void set_player_position(int lvl);
 
 int get_number_of_sq(int lvl);
 
-void print_level_info();
+
 
 void set_zeroes();
 
 void set_current_level(int lvl);
 
-
+void print_level_info();
 #endif

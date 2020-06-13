@@ -18,18 +18,19 @@ static void on_reshape(int width, int height);
 static void on_keyboard(unsigned char key, int x, int y);
 static void on_keyboard2(int key, int x, int y);
 static void on_timer(int id);
-static void initialize_textures();
+
 
 //pomocne funkcije
 
+
+static void initialize_textures();
+
+
 static void draw_square2(float x_coord, float z_coord, int activated);
 
-static void draw_grid();
+static void animate_player();
 
-static void postavi_nivo(int lvl);
-
-static void postavi_boje(float red, float green, float blue, float transparency);
-
+void postavi_nivo(int lvl);
 
 //globalne promenljive za animaciju
 float animation_parameter = 0;
@@ -44,10 +45,18 @@ static GLuint tex_names[2];
 //smer kretanja igraca koji je u pocetku u smeru z ose
 int direction  = 2;
 //da li je pozitivan smer, u pocetku jeste pa je jednak 1
-//tj da li inkrementiramo ili dekrementiramo kretanje
+//tj da li inkrementiramo ili dekrementiramo kretanjeq
 int positive_dir = 1;
 
-//brzina kretanja lopte
+//smerovi kretanja pre nego sto smo stisnuli taster
+
+int last_dir =2;
+
+int last_pos_dir=1;
+
+
+
+//brzina kretanja igraca
 float vel_incr = 0.02;
 
 
@@ -71,8 +80,11 @@ int main(int argc, char **argv)
     glutReshapeFunc(on_reshape);
     glutKeyboardFunc(on_keyboard);
     glutSpecialFunc(on_keyboard2);
+	glutIdleFunc(glutPostRedisplay);
 
     /* Obavlja se OpenGL inicijalizacija. */
+    
+    glutSetKeyRepeat(GLUT_KEY_REPEAT_OFF),
     glEnable(GL_DEPTH_TEST);
 
     glEnable(GL_LIGHTING);
@@ -135,35 +147,49 @@ void on_keyboard2(int key, int x, int y){
 	switch(key){
 	case GLUT_KEY_UP :
 			if(animation_ongoing){
+				
+				last_dir=direction;
+				last_pos_dir=positive_dir;
+				
 				positive_dir=1;
 				direction=2;
-				animation_parameter= 0;
+				//animation_parameter+= vel_incr;
 				glutPostRedisplay();
 			}
 
 		break;
 	case GLUT_KEY_RIGHT :
 			if(animation_ongoing){
+								
+				last_dir=direction;
+				last_pos_dir=positive_dir;				
+				
 				positive_dir=1;
 				direction=0;
-				animation_parameter= 0;
+				//animation_parameter= vel_incr;
 				glutPostRedisplay();
 			}
 	    break;
 	case GLUT_KEY_DOWN :
-			if(animation_ongoing){
+			if(animation_ongoing){		
+				last_dir=direction;
+				last_pos_dir=positive_dir;			
+				
 				positive_dir=0;
 				direction=2;
-				animation_parameter= 0;
+				//animation_parameter= vel_incr;
 				glutPostRedisplay();
 			}
 	    break;
 
 	case GLUT_KEY_LEFT :
-			if(animation_ongoing){
+			if(animation_ongoing){				
+				last_dir=direction;
+				last_pos_dir=positive_dir;				
+				
 				positive_dir=0;
 				direction=0;
-				animation_parameter= 0;
+				//animation_parameter= vel_incr;
 				glutPostRedisplay();
 			}
 			
@@ -200,6 +226,8 @@ void on_reshape(int width, int height) {
 
 //funkcija za iscrtavanje
 
+
+
 void on_display() {
   
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
@@ -212,12 +240,13 @@ void on_display() {
     
     
     //kamera se pomera sa igracem
-    gluLookAt(position[0], position[1]+7, position[2]-7,
+    gluLookAt(position[0], position[1]+5, position[2]-5,
               position[0], position[1], position[2],
               0, 1, 0);
 
 	//draw_grid();
-
+	
+	
    	         
 	glPushMatrix();
 	
@@ -230,7 +259,7 @@ void on_display() {
     
     glPushMatrix();
 
-    postavi_boje(0.3,0.3,0.9,1.0);
+
     
     if(!fail_condition){
 	   fail_condition_check(NIVO);
@@ -269,10 +298,71 @@ void on_display() {
 
     
     //lopta tj. igrac koji se krece po kvadratima
-   
-	glPushMatrix();
 	
-    glutSolidSphere(0.1,64,64);
+	//pomocu promenljivih pravimo vektore
+	//
+	int vector_old[2];
+	int vector_new[2];
+	
+	
+	if(direction==0)
+		if(positive_dir==1){
+			vector_new[0]=-1;
+			vector_new[1]=0;
+			}
+		else {
+			vector_new[0]=1;
+			vector_new[1]=0;			
+			}
+	else
+		if(positive_dir==1){
+			vector_new[0]=0;
+			vector_new[1]=-1;
+			}
+		else {
+			vector_new[0]=0;
+			vector_new[1]=1;			
+			}
+
+	if(last_dir==0)
+		if(positive_dir==1){
+			vector_old[0]=-1;
+			vector_old[1]=0;
+			}
+		else {
+			vector_old[0]=1;
+			vector_old[1]=0;			
+			}
+	else
+		if(last_pos_dir==1){
+			vector_old[0]=0;
+			vector_old[1]=-1;
+			}
+		else {
+			vector_old[0]=0;
+			vector_old[1]=1;			
+			}
+	
+	double dot = vector_old[0]*vector_new[1] + vector_old[0]*vector_old[1];
+	double det = vector_old[0]*vector_new[1] - vector_old[1]*vector_new[0];
+
+
+
+	//ako idemo u istom smeru i dalje nema potrebe rotirati
+
+	glPushMatrix();
+	if(!(last_dir==direction && last_pos_dir==positive_dir)){
+		if(last_dir==direction){
+			if(direction==2)
+				glRotatef(180,0,1,0);
+			else
+				glRotatef(270 ,0,1,0);	
+		}
+	else
+			glRotatef((2*atan2(det,dot)*180/M_PI)+90,0,1,0);
+	}
+	
+	animate_player();
     
     glPopMatrix();
     
@@ -282,16 +372,16 @@ void on_display() {
 	if(!fail_condition){
 		num_of_sq=get_number_of_sq(NIVO);
 	}
+	
     //ako smo ostali sa samo jednim kvadratom onda prelazimo na sledeci nivo
     if(!fail_condition){
 		if(num_of_sq==1){
-			if(NIVO==10){
+			if(NIVO==MAX_LEVEL){
 				glDeleteTextures(2, tex_names);
 				exit(EXIT_SUCCESS);
 			}
 			NIVO+=1;
 			set_zeroes();
-			
 			
 			set_current_level(NIVO);
 			
@@ -310,6 +400,8 @@ void on_display() {
     glutSwapBuffers();
 
 }
+
+
 
 //Pomocna funkcija koja ucitava teksture
 //kod za rad sa teksturama preuzet sa sedmog casa Racunarske grafike
@@ -369,45 +461,6 @@ void initialize_textures(){
 
 
 
-
-
-//pomocna funkcija za postavljanje boja
-void postavi_boje(float red, float green, float blue, float transparency){
-
-    	GLfloat ambient[] = {0.3,0.3,0.3,0};
-	    GLfloat diffuse[] = {red,green,blue,transparency};
-    	GLfloat specular[] = {0.6,0.6,0.6,0};
-    	GLfloat shininess = 80;
-
-    	glMaterialfv(GL_FRONT_AND_BACK, GL_AMBIENT, ambient);
-    	glMaterialfv(GL_FRONT_AND_BACK, GL_DIFFUSE, diffuse);
-    	glMaterialfv(GL_FRONT_AND_BACK, GL_SPECULAR, specular);
-    	glMaterialf(GL_FRONT_AND_BACK, GL_SHININESS, shininess);
-
-}
-
-
-
-
-//pomocna funkcija za iscrtavanje mreze kvadrata
-void draw_grid(){
-	
-	glBegin(GL_LINES);
-	for(int i=0;i<=10;i++) {
-		if (i==0) { glColor3f(.6,.3,.3); } else { glColor3f(.25,.25,.25); };
-		glVertex3f(i,0,0);
-		glVertex3f(i,0,10);
-		if (i==0) { glColor3f(.3,.3,.6); } else { glColor3f(.25,.25,.25); };
-		glVertex3f(0,0,i);
-		glVertex3f(10,0,i);
-	};
-	glEnd();	
-	
-	}
-
-
-
-
 //Pomocna funkcija za iscrtavanje kvadrata, activated ima vrednost 0 ili 1 u zavisnosti od toga da li je kvadrat aktivan , tj igrac stoji na njemu ili ne
 
 void draw_square2(float x_coord, float z_coord, int activated){
@@ -450,6 +503,100 @@ void draw_square2(float x_coord, float z_coord, int activated){
 	glPopMatrix();
 	}
 	
+
+
+
+//pomocna funkcija za iscrtavanje igraca
+	
+void animate_player(){
+	    
+    postavi_boje(0.3,0.3,0.9,1.0);  
+   
+    
+	//ravan za presecanje kupe kako bi napravili torzo
+	double clip_plane[] = {0,1,0,-0.05};	
+    
+	
+	glPushMatrix();  	
+	
+	//glava
+
+	glPushMatrix();
+	
+	glScalef(0.7,1,0.7);
+	glTranslatef(0,0.35,0);
+	glutSolidSphere(0.05,32,32);
+	
+	glPopMatrix();
+	
+	
+	
+	//torzo
+	glPushMatrix();
+	
+	glTranslatef(0,0.1,0);
+	glClipPlane(GL_CLIP_PLANE0, clip_plane);
+    glEnable(GL_CLIP_PLANE0);
+	glPushMatrix();
+	glTranslatef(0,0.2,0);
+	glRotatef(90,1,0,0);
+	glScalef(1,0.3,1);
+
+	glutSolidCone(0.1, 0.3, 64, 64);    
+    glPopMatrix();	
+	glDisable(GL_CLIP_PLANE0);
+	glPopMatrix();
+	
+	
+	//noge
+	glPushMatrix();
+	glTranslatef(0,0.2,0);
+	glRotatef(-10*sin(6*animation_parameter),1,0,0);
+	glTranslatef(0,-0.2,0);
+	glTranslatef(-0.02,0.02,0);
+	glScalef(0.03,0.3,0.03);
+	glutSolidSphere(0.5,32,32);
+	glPopMatrix();
+
+	glPushMatrix();
+	glTranslatef(0,0.2,0);
+	glRotatef(10*sin(6*animation_parameter),1,0,0);
+	glTranslatef(0,-0.2,0);
+	glTranslatef(0.02,0.02,0);
+	glScalef(0.03,0.3,0.03);
+	glutSolidSphere(0.5,32,32);
+	glPopMatrix();
+
+	//ruke
+	
+	
+	glPushMatrix();
+	glTranslatef(0,0.27,0);
+	glRotatef(-8*sin(5*animation_parameter),1,0,0);
+	glTranslatef(0,-0.27,0);	
+	glTranslatef(0.09,0.2,0);
+	glScalef(0.03,0.2,0.03);
+	glutSolidSphere(0.5,32,32);	
+	
+	glPopMatrix();
+
+	glPushMatrix();
+	glTranslatef(0,0.27,0);
+	glRotatef(8*sin(5*animation_parameter),1,0,0);
+	glTranslatef(0,-0.27,0);	
+	glTranslatef(-0.09,0.2,0);
+	glScalef(0.03,0.2,0.03);
+	glutSolidSphere(0.5,32,32);	
+	
+	glPopMatrix();
+
+
+	
+	glPopMatrix();
+	
+	}
+	
+
 // pomocna funkcija za postavljanje nivoa, takodje postavlja neaktivne kvadrate
 void postavi_nivo(int lvl){
 	
@@ -484,4 +631,4 @@ void postavi_nivo(int lvl){
 				i+=1;
 			}
 		
-		}
+}
